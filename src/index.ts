@@ -4,6 +4,8 @@ import { mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 import { transcribeAudio } from "./transcriber";
+import { isValidYouTubeUrl } from "./validation";
+import { classifyExtractError } from "./errors";
 
 const app = new Hono();
 
@@ -26,6 +28,8 @@ interface NutyJob {
   createdAt: number;
   completedAt?: number;
   error?: string;
+  errorType?: string;
+  errorDetail?: string;
   result?: {
     midiUrl?: string;
     musicXmlUrl?: string;
@@ -66,7 +70,7 @@ app.post("/api/transcribe", async (c) => {
     return c.json({ error: "Missing 'url' field" }, 400);
   }
 
-  if (!/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(url)) {
+  if (!isValidYouTubeUrl(url)) {
     return c.json({ error: "URL must be a valid YouTube link" }, 400);
   }
 
@@ -150,8 +154,13 @@ app.post("/api/transcribe", async (c) => {
         notesCount: transcription.notesCount,
       };
     } catch (err: any) {
+      const rawError = err.message ?? String(err);
+      const classified = classifyExtractError(rawError);
       job.status = "failed";
-      job.error = err.message ?? String(err);
+      // Use user-friendly message for the UI, but keep the raw error for debugging
+      job.error = classified.userMessage;
+      job.errorType = classified.type;
+      job.errorDetail = rawError;
       job.completedAt = Date.now();
     }
   })();
@@ -175,6 +184,7 @@ app.get("/api/jobs/:id", (c) => {
     createdAt: new Date(job.createdAt).toISOString(),
     completedAt: job.completedAt ? new Date(job.completedAt).toISOString() : undefined,
     error: job.error,
+    errorType: job.errorType,
     result: job.result,
   });
 });

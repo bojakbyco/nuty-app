@@ -50,7 +50,7 @@ transcribeBtn.addEventListener("click", async () => {
     const data = await resp.json();
     pollJobStatus(data.jobId);
   } catch (err) {
-    showError(err.message);
+    showError(err.message, "generic");
   }
 });
 
@@ -89,11 +89,12 @@ function pollJobStatus(jobId) {
         setTimeout(() => showResult(job), 500);
       } else if (job.status === "failed") {
         clearInterval(pollInterval);
-        showError(job.error || "Unknown error");
+        // Use classified error message if available, otherwise raw error
+        showError(job.error || "Unknown error", job.errorType);
       }
     } catch (err) {
       clearInterval(pollInterval);
-      showError("Failed to check job status: " + err.message);
+        showError("Failed to check job status: " + err.message, "generic");
     }
   }, 2000);
 }
@@ -221,9 +222,22 @@ function hideAll() {
   resultSection.classList.add("hidden");
 }
 
-function showError(msg) {
+function showError(msg, errorType) {
   hideAll();
   errorMessage.textContent = msg;
+
+  // Add type-specific icon/title
+  const errorCard = errorSection.querySelector(".error-card h3");
+  if (errorType === "anti_bot") {
+    errorCard.textContent = "🚫 YouTube Anti-Bot Block";
+  } else if (errorType === "auth_error") {
+    errorCard.textContent = "🔑 Authentication Error";
+  } else if (errorType === "not_found") {
+    errorCard.textContent = "🔗 Connection Error";
+  } else {
+    errorCard.textContent = "⚠️ Something went wrong";
+  }
+
   errorSection.classList.remove("hidden");
   statusIcon.textContent = "⏳";
   statusIcon.style.animation = "pulse 1.5s infinite";
