@@ -6,11 +6,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     python3 \
     python3-pip \
-    && pip3 install --break-system-packages \
+    python3-dev \
+    python3-setuptools \
+    python3-wheel \
+    && pip3 install --break-system-packages --no-cache-dir \
+        numpy==1.26.4 \
+    && pip3 install --break-system-packages --no-cache-dir \
         basic-pitch \
         music21 \
-        setuptools \
-        wheel \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
