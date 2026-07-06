@@ -1,21 +1,20 @@
-FROM oven/bun:1.3 AS base
+FROM python:3.11-slim
 
-# Install ffmpeg + Python toolchain + C compiler (needed by basic-pitch deps)
-USER root
+# Install ffmpeg + system deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    python3 \
-    python3-pip \
-    python3-dev \
-    python3-setuptools \
-    python3-wheel \
     gcc \
     g++ \
-    && pip3 install --break-system-packages --no-cache-dir \
-        numpy \
-        basic-pitch \
-        music21 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+# Install Python ML deps
+RUN pip install --no-cache-dir numpy basic-pitch music21
 
 WORKDIR /app
 
