@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuty — YouTube to Sheet Music</title>
+  <link rel="stylesheet" href="/style.css">
+  <!-- OpenSheetMusicDisplay for rendering MusicXML as sheet music -->
+  <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.0/build/opensheetmusicdisplay.min.js"></script>
+  <!-- Tone.js for MIDI playback -->
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎵 Nuty</h1>
+      <p class="subtitle">Paste a YouTube link — get sheet music</p>
+    </header>
+
+    <main>
+      <!-- Input form -->
+      <div class="input-section">
+        <div class="url-input-group">
+          <input
+            type="url"
+            id="urlInput"
+            placeholder="https://www.youtube.com/watch?v=..."
+            class="url-input"
+            autocomplete="off"
+          />
+          <button id="transcribeBtn" class="btn-primary">Extract Notes</button>
+        </div>
+        <p class="hint">Works best with solo piano, instrumental, or melodic content.</p>
+      </div>
+
+      <!-- Progress / status -->
+      <div id="statusSection" class="status-section hidden">
+        <div class="status-card">
+          <div class="status-icon" id="statusIcon">⏳</div>
+          <div class="status-content">
+            <h3 id="statusTitle">Processing...</h3>
+            <p id="statusMessage" class="status-message">Starting...</p>
+            <div class="progress-bar">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="errorSection" class="error-section hidden">
+        <div class="error-card">
+          <h3>⚠️ Something went wrong</h3>
+          <p id="errorMessage"></p>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="resultSection" class="result-section hidden">
+        <h2 id="videoTitle" class="video-title"></h2>
+
+        <div class="result-actions">
+          <button id="playMidiBtn" class="btn-secondary" disabled>▶ Play MIDI</button>
+          <a id="downloadMidi" class="btn-secondary" download>⬇ Download MIDI</a>
+          <a id="downloadXml" class="btn-secondary" download>⬇ Download MusicXML</a>
+        </div>
+
+        <div class="sheet-music-container">
+          <h3>Sheet Music</h3>
+          <div id="sheetMusic"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Powered by yt-dlp · Spotify Basic Pitch · OpenSheetMusicDisplay</p>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

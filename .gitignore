@@ -1,0 +1,9 @@
+node_modules/
+data/
+*.mp3
+*.wav
+*.mid
+*.musicxml
+*.srt
+*.vtt
+.DS_Store
